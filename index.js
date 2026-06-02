@@ -29,23 +29,20 @@ app.get('/info', (request, response) => {
 })
 
 // Creación de una nueva persona
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
-  if (!body.name || !body.number) {
-    return response.status(400).json({ 
-      error: 'name or number missing' 
-    })
-  }
-
+  // Dejamos que Mongoose maneje la obligatoriedad mediante su esquema
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error)) // Pasa el ValidationError al errorHandler
 })
 
 // Obtención de una persona individual
